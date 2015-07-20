@@ -60,11 +60,13 @@ Makefile.config
 # 2. custom, and live on their own unless they're deliberated contributed
 data/*
 models/*
+!models/clothes*
 *.caffemodel
 *.solverstate
 *.binaryproto
 *leveldb
 *lmdb
+!data/cloth*
 
 # build, distribute, and bins (+ python proto bindings)
 build
