@@ -21,16 +21,32 @@ import math
 parser = argparse.ArgumentParser()
 parser.add_argument("data_dir")
 parser.add_argument("--output_dir", default=".")
-parser.add_argument("--traning_persentage", default="0.9", type=float)
-parser.add_argument("--validating_persentage", default="0.1", type=float)
-# Reserved for test.
-parser.add_argument("--test_count_in_each_type", default="35", type=int)
+parser.add_argument("--test_count_in_each_category", default="35", type=int,
+        help="The number instances reserved for testing for each category.")
+parser.add_argument("--training_persentage", default="0.9", type=float,
+        help="The persentage of data used for training.")
+parser.add_argument("--validating_persentage", default="0.1", type=float,
+        help="The persentage of data used for validation.")
+parser.add_argument("--remove_background", default="False", type=bool,
+        help="True to remove background from the images we process.")
+parser.add_argument("--remove_skin", default="False", type=bool,
+        help="True to remove skin from the images we process.")
 args = parser.parse_args()
+
+# Process image from src and write the result to dest.
+def proc_and_copy_image (src, dest) :
+  if parser.remove_background :
+    # TODO: call background removal.
+    pass
+  if parser.remove_skin :
+    # TODO: call skin removal.
+    pass
+  shutil.copyfile(src, dest)
 
 pp = pprint.PrettyPrinter(indent=2)
 
-print args.traning_persentage
-training_persentage = args.traning_persentage / (args.traning_persentage + args.validating_persentage)
+# print args.training_persentage
+training_persentage = args.training_persentage / (args.training_persentage + args.validating_persentage)
 
 categories = {}
 for cat in os.listdir(args.data_dir) :
@@ -73,7 +89,7 @@ for cat in categories:
     if not src.endswith('jpg') and not src.endswith('jpeg') and not src.endswith('png'):
       dest = dest + '.' + imghdr.what(src)
       suffix = '.' + imghdr.what(src)
-    shutil.copyfile(src, dest)
+    proc_and_copy_image(src, dest)
     train_list_file.write("%s-%s%s %d\n" % (cat, train_file, suffix, i))
 
   print "Generating validation data..."
@@ -85,7 +101,7 @@ for cat in categories:
     if not src.endswith('jpg') and not src.endswith('jpeg') and not src.endswith('png'):
       dest = dest + "." + imghdr.what(src)
       suffix = '.' + imghdr.what(src)
-    shutil.copyfile(src, dest)
+    proc_and_copy_image(src, dest)
     val_list_file.write("%s-%s%s %d\n" % (cat, val_file, suffix, i))
 
   print "Generating testing data..."
@@ -94,7 +110,7 @@ for cat in categories:
   for test_file in categories[cat]['test']:
     src = input_dir + test_file
     dest = '%s-%d.%s' % (output_prefix, j, imghdr.what(src))
-    shutil.copyfile(src, dest)
+    proc_and_copy_image(src, dest)
     j += 1
   i += 1
 
