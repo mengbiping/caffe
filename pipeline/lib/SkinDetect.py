@@ -1,4 +1,4 @@
-from pyimagesearch import imutils
+import imutils
 import numpy as np
 import cv2,Image,os
 def skin_detect(imagepath):
@@ -6,14 +6,14 @@ def skin_detect(imagepath):
 	# intensities to be considered 'skin'
 	lower = np.array([0, 48, 80], dtype = "uint8")
 	upper = np.array([20, 255, 255], dtype = "uint8")
-	
+
 	img = cv2.imread(imagepath)
 	# convert it to the HSV color space,
 	# and determine the HSV pixel intensities that fall into
 	# the speicifed upper and lower boundaries
 	frame = img
 
-	frame = imutils.resize(img, width = 400)
+	frame = imutils.resize(img, width = 1000)
 	
 	converted = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 	skinMask = cv2.inRange(converted, lower, upper)
