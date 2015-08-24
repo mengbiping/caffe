@@ -1,10 +1,19 @@
 import Image,cv2,os,time,shutil
 import numpy as np
+import argparse
+import pickle
 from colormath.color_objects import LabColor, sRGBColor
 from colormath.color_conversions import convert_color
 from colormath.color_diff import delta_e_cie2000
 from BackRemove_Mask_Simple import remove_background
 from SkinDetect import skin_detect
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--metadata", default="metadata.obj")
+parser.add_argument("--rgb_to_color", default="rgb_to_color_table.obj")
+parser.add_argument("--colors_to_decay", default="White,Silver,Black")
+parser.add_argument("--decay_percentage", default="0.7", type=float)
+args = parser.parse_args()
 
 # calculate the reference common color
 color_dir_path = '/home/mengbiping/Documents/color-detection/color-0818/color_32' # the folder of color pictures
@@ -16,43 +25,26 @@ color_ref_rgb = [] # array of [r,g,b] for the reference colors.
 color_ref_lab = [] # array of lab object for the reference colors.
 color_ref_name = [] # array of color names.
 color_num = 0 # The total number of colors.
-white_index = 0 # The index for white color.
-for root, dirs, files in os.walk(color_dir_path):
-    for name in files:
-        if name.endswith('.png') or name.endswith('.jpg'):
-	    filename = os.path.join(root,name)
-	    img = cv2.imread(filename)
-    	    name_length = len(name)
-	    color_name = name[:name_length-4]
-            rgb = tuple(img.mean(axis=0))[0]
-	    color_ref_rgb.append(rgb)
-            rgb_obj = sRGBColor(rgb[2]/255.0, rgb[1]/255.0, rgb[0]/255.0)
-            color_ref_lab.append(convert_color(rgb_obj, LabColor))
-            color_ref_name.append(color_name)
-            if color_name == 'White' :
-                white_index = color_num
-	    if os.path.exists(result_dir_path + color_name):
-		shutil.rmtree(result_dir_path + color_name)
-            os.mkdir(result_dir_path + color_name)	    
-            color_num += 1
 
-print "Building the color ref matrix."
-rgb_to_color = np.zeros((256,256,256))
-for i in range(256) :
-    print "%d finished" % i
-    for j in range(256) :
-        for k in range(256) :
-            delta = 10000
-            color_index = 0
-            comparison_rgb = sRGBColor(k/255.0, j/255.0, i/255.0)
-            comparison_lab = convert_color(comparison_rgb, LabColor)
-            for l in range (len(color_ref_lab)) :
-                delta_e = delta_e_cie2000(comparison_lab, color_ref_lab[l])
-                if delta_e < delta:
-                    delta = delta_e
-                    color_index = l
-            rgb_to_color[i,j,k] = color_index
+with open(args.metadata, 'r') as m_file:
+    metadata = pickle.load(args.metadata)
+    color_ref_rgb = metadata['color_ref_rgb']
+    color_ref_lab = metadata['color_ref_lab']
+    color_ref_name = metadata['color_ref_name']
+    color_num = metadata['color_num']
+m_file.close()
 
+decay_color_index = set() # The index for colors to be decayed, e.g., white and silver.
+decay_color_name = args.colores_to_decay.split(",")
+for i in range(len(color_ref_name)) :
+    if color_ref_name[i] in decay_color_name :
+        print "Decaying color: %s" . color_ref_name[i]
+        decay_color_index.add(i)
+
+rgb_to_color = None
+with open(args.rgb_to_color, 'r') as r_file:
+    rgb_to_color = pickle.load(args.rgb_to_color)
+r_file.close()
 
 # process images
 count = 0
@@ -61,8 +53,8 @@ for root, dirs, files in os.walk(img_dir_path):
         if name.endswith('.jpg'):# search for all the jpg formate images for processing
 	    filename = os.path.join(root,name)
 	    img = cv2.imread(filename)
+            print "Processing image No. %d ..." % count
 	    count = count + 1
-            print count
 	    start_time = time.time()
 	    # generate the foreground
             fore = remove_background(filename) # background removal
@@ -78,10 +70,11 @@ for root, dirs, files in os.walk(img_dir_path):
 	    for i in range(len(fore)):
 	        for j in range(len(fore[0])):
 		    if fore[i][j] == 255:
-                        color_index = rgb_to_color[img[i][j][0], img[i][j][1], img[i][j][2]]
+                        color_index = rgb_to_color[img[i][j][2], img[i][j][1], img[i][j][0]]
 	                color_count[color_index] += 1
             
-            color_count[white_index] *= 0.8  # for the case of blank area
+            for decay_color in decay_color_index
+                color_count[decay_color] *= args.decay_percentage # for the case of blank area
 	    
 	    result_color_index = 0
             count_ref = 0
