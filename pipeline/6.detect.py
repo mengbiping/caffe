@@ -12,7 +12,7 @@ sys.path.insert(0, 'python')
 import caffe
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--model_iter_in_k", default="25")
+parser.add_argument("--model_iter_in_k", default="40")
 parser.add_argument("--data_name", default="clothes_neck")
 parser.add_argument("--net_name", default="googlenet")
 parser.add_argument("--snapshot", default="quick_snapshots")
@@ -32,6 +32,7 @@ image_dir = 'data/%s/test/' % args.data_name
 #                IMAGE_PATH + 'round-test1.jpg', IMAGE_PATH + 'round-test2.jpg', IMAGE_PATH + 'round-test3.jpg']
 
 pp = pprint.PrettyPrinter(indent=2)
+print "Using %s mode" % args.mode
 if args.mode == 'gpu' :
   caffe.set_mode_gpu()
 else :
@@ -61,7 +62,7 @@ total_high = 0
 wrong_high = 0
 stats = {}
 ground_truth_extractor = re.compile("([0-9]+)-")
-for image in os.listdir(image_dir):
+for image in sorted(os.listdir(image_dir)) :
   total += 1
   (c, prob) = classify(net, image_dir + image)
   matched = ground_truth_extractor.match(image)
