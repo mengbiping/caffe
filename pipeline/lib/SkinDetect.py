@@ -1,10 +1,12 @@
 import imutils
 import numpy as np
 import cv2,Image,os
+
+# Returns matrix where non-skin pixels are 255 and skin pixels are 0.
 def skin_detect(imagepath):
 	# define the upper and lower boundaries of the HSV pixel
 	# intensities to be considered 'skin'
-	lower = np.array([0, 48, 80], dtype = "uint8")
+	lower = np.array([8, 48, 80], dtype = "uint8")
 	upper = np.array([20, 255, 255], dtype = "uint8")
 
 	img = cv2.imread(imagepath)
@@ -27,8 +29,6 @@ def skin_detect(imagepath):
 	# blur the mask to help remove noise, then apply the
 	# mask to the frame
 	skinMask = 255 - cv2.GaussianBlur(skinMask, (3, 3), 0)
-	skinMask = imutils.resize(skinMask, height=img.shape[0], width = img.shape[1])
-	skinMask=cv2.resize(skinMask,(img.shape[1],img.shape[0]),interpolation=cv2.INTER_CUBIC)
+	skinMask = imutils.resize(skinMask, height = img.shape[0], width = img.shape[1])
+	skinMask = cv2.resize(skinMask, (img.shape[1],img.shape[0]), interpolation=cv2.INTER_CUBIC)
 	return skinMask
-
-
