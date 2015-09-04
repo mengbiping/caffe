@@ -8,13 +8,13 @@ from colormath.color_diff import delta_e_cie2000
 from BackRemove_Mask_Simple import remove_background
 from SkinDetect import skin_detect
 from Build_Table import build_metadata
-from Build_Table import find_ref_color
+from Build_Table import ColorTableBuilder
 
-class ColorClassifier:
+class ColorClassifier(object) :
   # Load metadatafrom metadata_file_path if # non-empty. Otherwise try build
   # metadata from color_ref_dir.
   def __init__(self, metadata_file_path=None, ref_color_table_file_path=None,
-          color_ref_dir=None, decay_colors=0.7, decay_percentage=0.7,
+          color_ref_dir=None, decay_colors="", decay_percentage=0.7,
           max_skin_percentage=0.6) :
     
     metadata = None
@@ -25,29 +25,29 @@ class ColorClassifier:
     else :
       assert color_ref_dir is not None and len(color_ref_dir) > 0
       metadata = build_metadata(color_ref_dir)
-    self.initialize(metadata, decay_colors, decay_percentage, max_skin_percentage)
+    self._initialize(metadata, decay_colors, decay_percentage, max_skin_percentage)
 
-    self.rgb_to_color = None
+    self._color_table_builder = ColorTableBuilder(self._color_ref_lab)
     if ref_color_table_file_path is not None and len(ref_color_table_file_path) > 0 :
+      rgb_to_color = None
       with open(ref_color_table_file_path, 'r') as r_file:
-        self.rgb_to_color = pickle.load(r_file)
+        rgb_to_color = pickle.load(r_file)
       r_file.close()
-    else :
-      self.rgb_to_color = np.full((256,256,256), -1)
+      self._color_table_builder.load_color_table(rgb_to_color)
 
-  def initialize(self, metadata, decay_colors, decay_percentage, max_skin_percentage) :
-    self.color_ref_rgb = metadata['color_ref_rgb'] # array of [r,g,b] for the reference colors.
-    self.color_ref_lab = metadata['color_ref_lab'] # array of lab object for the reference colors.
-    self.color_ref_name = metadata['color_ref_name'] # array of color names.
-    self.color_num = metadata['color_num'] # The total number of colors.
-    self.decay_color_index = set() # The index for colors to be decayed, e.g., white and silver.
+  def _initialize(self, metadata, decay_colors, decay_percentage, max_skin_percentage) :
+    self._color_ref_rgb = metadata['color_ref_rgb'] # array of [r,g,b] for the reference colors.
+    self._color_ref_lab = metadata['color_ref_lab'] # array of lab object for the reference colors.
+    self._color_ref_name = metadata['color_ref_name'] # array of color names.
+    self._color_num = metadata['color_num'] # The total number of colors.
+    self._decay_color_index = set() # The index for colors to be decayed, e.g., white and silver.
     decay_color_name = decay_colors.split(",")
-    for i in range(len(self.color_ref_name)) :
-      if self.color_ref_name[i] in decay_color_name :
-        print "Decaying color: %s" % self.color_ref_name[i]
-        self.decay_color_index.add(i)
-    self.decay_percentage = decay_percentage
-    self.max_skin_percentage = max_skin_percentage
+    for i in range(len(self._color_ref_name)) :
+      if self._color_ref_name[i] in decay_color_name :
+        print "Decaying color: %s" % self._color_ref_name[i]
+        self._decay_color_index.add(i)
+    self._decay_percentage = decay_percentage
+    self._max_skin_percentage = max_skin_percentage
 
   def detect(self, image_file_path) :
     img = cv2.imread(image_file_path)
@@ -59,34 +59,38 @@ class ColorClassifier:
     skin_percentage = 1 - sum(map(sum, foreground))/1.0/sum(map(sum, background_removed))
     # In case of clothes in skin color.
     print "%f skin detected." % skin_percentage
-    if skin_percentage > self.max_skin_percentage:
+    if skin_percentage > self._max_skin_percentage:
       print "Too much skin"
       foreground = background_removed
   
     # Find the nearest reference color for each pixel and count
-    color_count = [0] * self.color_num
+    color_count = [0] * self._color_num
+    image_foreground_pixel = 0
     for i in range(len(foreground)):
       for j in range(len(foreground[0])):
         if foreground[i][j] != 255:
           continue
-        if self.rgb_to_color[img[i][j][2], img[i][j][1], img[i][j][0]] < 0 :
-          self.rgb_to_color[img[i][j][2], img[i][j][1], img[i][j][0]] = find_ref_color(self.color_ref_lab, img[i][j][2], img[i][j][1], img[i][j][0])
+        image_foreground_pixel += 1
+        if self._color_table_builder.rgb_to_color[img[i][j][2], img[i][j][1], img[i][j][0]] < 0 :
+          self._color_table_builder.reset_color(img[i][j][2], img[i][j][1], img[i][j][0])
   
-        color_index = int(self.rgb_to_color[img[i][j][2], img[i][j][1], img[i][j][0]])
+        color_index = int(self._color_table_builder.rgb_to_color[img[i][j][2], img[i][j][1], img[i][j][0]])
         color_count[color_index] += 1
 
     # Decay colors.
-    for decay_color in self.decay_color_index :
-      color_count[decay_color] *= self.decay_percentage
+    for decay_color in self._decay_color_index :
+      color_count[decay_color] *= self._decay_percentage
   
     max_color_count = max(color_count)
-    return (color_count.index(max_color_count), foreground)
+    return (color_count.index(max_color_count),
+        max_color_count / float(image_foreground_pixel),
+        foreground)
 
   def color_index_to_name(self, index) :
-    return self.color_ref_name[int(index)]
+    return self._color_ref_name[int(index)]
 
-  def color_count(self) :
-    return self.color_num
+  def color_num(self) :
+    return self._color_num
 
 def main() :
   parser = argparse.ArgumentParser()
@@ -103,7 +107,7 @@ def main() :
           args.color_ref_dir, args.colors_to_decay, args.decay_percentage,
           args.max_skin_percentage)
   # Build sub folders in the result dir.
-  for i in range(classifier.color_count()) :
+  for i in range(classifier.color_num()) :
     color_result_path = args.result_dir + '/' + classifier.color_index_to_name(i)
     if not os.path.exists(color_result_path) :
       os.mkdir(color_result_path)
@@ -116,7 +120,7 @@ def main() :
     print "Processing image No. %d: %s" % (count, name)
     filename = os.path.join(args.image_dir, name)
     start_time = time.time()
-    (result_color_index, foreground_mask) = classifier.detect(filename)
+    (result_color_index, result_color_persentage, foreground_mask) = classifier.detect(filename)
     result_color_name = classifier.color_index_to_name(result_color_index)
 
     # output the original image and that with background and skin removed showed in alpha channel
