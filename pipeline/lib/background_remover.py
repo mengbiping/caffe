@@ -1,5 +1,5 @@
 import pgmagick as pg
-import Image,cv2
+# import Image,cv2
 import numpy as np
 
 def trans_mask_sobel(img, thres):
@@ -58,6 +58,3 @@ def remove_background(filename):
 	        data[i,j] = 255 - img.pixelColor(j,i).alphaQuantum()
     data_u8 = data.astype('uint8')
     return data_u8
-
-
-

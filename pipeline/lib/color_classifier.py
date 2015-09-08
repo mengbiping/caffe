@@ -5,10 +5,10 @@ import pickle
 from colormath.color_objects import LabColor, sRGBColor
 from colormath.color_conversions import convert_color
 from colormath.color_diff import delta_e_cie2000
-from BackRemove_Mask_Simple import remove_background
-from SkinDetect import skin_detect
-from Build_Table import build_metadata
-from Build_Table import ColorTableBuilder
+from background_remover import remove_background
+from skin_detector import skin_detect
+from build_color_table import build_metadata
+from build_color_table import ColorTableBuilder
 
 class ColorClassifier(object) :
   # Load metadatafrom metadata_file_path if # non-empty. Otherwise try build
@@ -58,13 +58,13 @@ class ColorClassifier(object) :
     foreground = cv2.bitwise_and(background_removed, background_removed, mask = skin_removed) # the foreground mask
     skin_percentage = 1 - sum(map(sum, foreground))/1.0/sum(map(sum, background_removed))
     # In case of clothes in skin color.
-    print "%f skin detected." % skin_percentage
+    # print "%f skin detected." % skin_percentage
     if skin_percentage > self._max_skin_percentage:
-      print "Too much skin"
+      # print "Too much skin"
       foreground = background_removed
   
     # Find the nearest reference color for each pixel and count
-    color_count = [0] * self._color_num
+    color_histogram = [0] * self._color_num
     image_foreground_pixel = 0
     for i in range(len(foreground)):
       for j in range(len(foreground[0])):
@@ -75,14 +75,15 @@ class ColorClassifier(object) :
           self._color_table_builder.reset_color(img[i][j][2], img[i][j][1], img[i][j][0])
   
         color_index = int(self._color_table_builder.rgb_to_color[img[i][j][2], img[i][j][1], img[i][j][0]])
-        color_count[color_index] += 1
+        color_histogram[color_index] += 1
 
     # Decay colors.
     for decay_color in self._decay_color_index :
-      color_count[decay_color] *= self._decay_percentage
+      color_histogram[decay_color] *= self._decay_percentage
   
-    max_color_count = max(color_count)
-    return (color_count.index(max_color_count),
+    max_color_count = max(color_histogram)
+    return (color_histogram.index(max_color_count),
+        color_histogram,
         max_color_count / float(image_foreground_pixel),
         foreground)
 
@@ -120,8 +121,18 @@ def main() :
     print "Processing image No. %d: %s" % (count, name)
     filename = os.path.join(args.image_dir, name)
     start_time = time.time()
-    (result_color_index, result_color_persentage, foreground_mask) = classifier.detect(filename)
+    (result_color_index, color_histogram, result_color_persentage, foreground_mask) = classifier.detect(filename)
     result_color_name = classifier.color_index_to_name(result_color_index)
+
+    # Print the top three colors.
+    top_three_color = np.argsort(color_histogram)[:-4:-1] # the last 3 items in reverse order
+    totol_foreground_pixels = float(sum(color_histogram))
+    for i in range(len(top_three_color)) :
+      current_index = top_three_color[i]
+      print "Top %d color: %s %f" % (i + 1,
+              classifier.color_index_to_name(current_index),
+              color_histogram[current_index] / totol_foreground_pixels)
+
 
     # output the original image and that with background and skin removed showed in alpha channel
     img = Image.open(filename)

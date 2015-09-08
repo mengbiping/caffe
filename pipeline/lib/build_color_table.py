@@ -7,8 +7,8 @@ from colormath.color_objects import LabColor, sRGBColor
 from colormath.color_conversions import convert_color
 from colormath.color_diff import delta_e_cie2000
 from colormath.color_diff import delta_e_cie1976
-from BackRemove_Mask_Simple import remove_background
-from SkinDetect import skin_detect
+from background_remover import remove_background
+from skin_detector import skin_detect
 #from multiprocessing import Pool
 #import pathos.multiprocessing as mp
 from functools import partial
