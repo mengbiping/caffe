@@ -16,7 +16,7 @@ class ColorClassifier(object) :
   def __init__(self, metadata_file_path=None, ref_color_table_file_path=None,
           color_ref_dir=None, decay_colors="", decay_percentage=0.7,
           max_skin_percentage=0.6) :
-    
+
     metadata = None
     if metadata_file_path is not None and len(metadata_file_path) > 0 :
       with open(metadata_file_path, 'r') as m_file:
@@ -62,7 +62,7 @@ class ColorClassifier(object) :
     if skin_percentage > self._max_skin_percentage:
       # print "Too much skin"
       foreground = background_removed
-  
+
     # Find the nearest reference color for each pixel and count
     color_histogram = [0] * self._color_num
     image_foreground_pixel = 0
@@ -73,14 +73,14 @@ class ColorClassifier(object) :
         image_foreground_pixel += 1
         if self._color_table_builder.rgb_to_color[img[i][j][2], img[i][j][1], img[i][j][0]] < 0 :
           self._color_table_builder.reset_color(img[i][j][2], img[i][j][1], img[i][j][0])
-  
+
         color_index = int(self._color_table_builder.rgb_to_color[img[i][j][2], img[i][j][1], img[i][j][0]])
         color_histogram[color_index] += 1
 
     # Decay colors.
     for decay_color in self._decay_color_index :
       color_histogram[decay_color] *= self._decay_percentage
-  
+
     max_color_count = max(color_histogram)
     return (color_histogram.index(max_color_count),
         color_histogram,
@@ -95,8 +95,8 @@ class ColorClassifier(object) :
 
 def main() :
   parser = argparse.ArgumentParser()
-  parser.add_argument("--metadata", default="")
-  parser.add_argument("--rgb_to_color", default="")
+  parser.add_argument("--metadata", default="metadata.obj")
+  parser.add_argument("--rgb_to_color", default="new_rgb_to_color_table.obj")
   parser.add_argument("--colors_to_decay", default="White,Silver,Black,Chocolate")
   parser.add_argument("--decay_percentage", default="0.7", type=float)
   parser.add_argument("--max_skin_percentage", default="0.8", type=float) # 0.8 for intimates and 0.6 for others.
