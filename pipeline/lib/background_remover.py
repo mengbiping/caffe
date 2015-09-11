@@ -37,7 +37,7 @@ def alpha_composite(image, mask):
 
 def remove_background(filename):
     """ Remove the background of the image in 'filename' """
-    img = pg.Image(filename)
+    img = pg.Image(filename.encode('utf-8'))
     transmask = trans_mask_sobel(img, 15)
     img = alpha_composite(transmask,img)
     flag = 1
