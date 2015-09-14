@@ -1,5 +1,4 @@
 import pgmagick as pg
-# import Image,cv2
 import numpy as np
 
 def trans_mask_sobel(img, thres):
@@ -35,26 +34,32 @@ def alpha_composite(image, mask):
     )
     return compos
 
-def remove_background(filename):
-    """ Remove the background of the image in 'filename' """
-    img = pg.Image(filename.encode('utf-8'))
-    transmask = trans_mask_sobel(img, 15)
+def sobel_background_remove(img, thres):
+    """ Returns the mask of img with background-removed and the
+    persentage of background part. """
+    transmask = trans_mask_sobel(img, thres)
     img = alpha_composite(transmask,img)
-    flag = 1
     data = np.zeros([img.rows(),img.columns()])
     count = 0
     for i in range(img.rows()):
         for j in range(img.columns()):
-	    data[i,j] = 255 - img.pixelColor(j,i).alphaQuantum()
-            count += data[i,j] 
-    #print 1 - count/255.0/img.rows()/img.columns()
-    if 1 - count/255.0/img.rows()/img.columns() > 0.79:
-        #print "too much background" 
-        transmask = trans_mask_sobel(img, 5)
-	img = alpha_composite(transmask,img)
-	data = np.zeros([img.rows(),img.columns()])
-	for i in range(img.rows()):
-	    for j in range(img.columns()):
-	        data[i,j] = 255 - img.pixelColor(j,i).alphaQuantum()
-    data_u8 = data.astype('uint8')
-    return data_u8
+            data[i,j] = 255 - img.pixelColor(j,i).alphaQuantum()
+            count += data[i,j]
+    return (data, 1 - count/255.0/img.rows()/img.columns())
+
+def remove_background(filename, starting_thres=15,
+        thres_decay_multiplier=3.0,
+        max_background_persentage=0.79):
+    """ Remove the background of the image in 'filename', returns a
+    foreground mask."""
+    img = pg.Image(filename.encode('utf-8'))
+    thres = starting_thres
+    background_persentage = 1.1
+    while thres > 1 and background_persentage > max_background_persentage:
+        (data, background_persentage) = sobel_background_remove(img, thres)
+        thres /= float(thres_decay_multiplier)
+
+    if background_persentage > max_background_persentage:
+        # Too much background. Treat as no-background at all.
+        data = np.full([img.rows(),img.columns()], 255)
+    return data.astype('uint8')

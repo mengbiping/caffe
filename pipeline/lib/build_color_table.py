@@ -40,7 +40,7 @@ def build_metadata(color_ref_dir):
 class ColorTableBuilder(object) :
     # twiddler is a dict that stores the mapping from color index to its distance penalty.
     def __init__(self, color_ref_lab, twiddler = {}) :
-        # the table of rgb color to 
+        # the table of rgb color to
         self.rgb_to_color = np.full((256,256,256), -1)
         self._color_ref_lab = color_ref_lab
         self._twiddler = twiddler
