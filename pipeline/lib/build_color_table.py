@@ -66,7 +66,7 @@ class ColorTableBuilder(object) :
         return color_index
 
     def reset_color(self, r, g, b) :
-        self.rgb_to_color[r,g,b] = find_color(r, g, b)
+        self.rgb_to_color[r,g,b] = self.find_color(r, g, b)
 
     def _find_all_blue(self, r, g) :
         return map(partial(self.find_color, r, g), range(256))
