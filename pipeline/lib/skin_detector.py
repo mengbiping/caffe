@@ -3,13 +3,13 @@ import numpy as np
 import cv2,Image,os
 
 # Returns matrix where non-skin pixels are 255 and skin pixels are 0.
-def skin_detect(imagepath):
+def skin_detect(img):
 	# define the upper and lower boundaries of the HSV pixel
 	# intensities to be considered 'skin'
 	lower = np.array([8, 48, 80], dtype = "uint8")
 	upper = np.array([20, 255, 255], dtype = "uint8")
 
-	img = cv2.imread(imagepath)
+	#img = cv2.imread(imagepath)
 	# convert it to the HSV color space,
 	# and determine the HSV pixel intensities that fall into
 	# the speicifed upper and lower boundaries
