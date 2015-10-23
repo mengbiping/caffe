@@ -1,6 +1,7 @@
+import cv2
 import imutils
 import numpy as np
-import cv2,Image,os
+import os
 
 # Returns matrix where non-skin pixels are 255 and skin pixels are 0.
 def skin_detect(img):

@@ -9,12 +9,17 @@
 # 3. number_of_categories * args.test_count_in_each_category images in test folder.
 
 import argparse
+import cv2
 import imghdr
 import math
 import md5
+import numpy as np
 import os
 import random
 import shutil
+
+from background_remover import remove_background
+from skin_detector import skin_detect
 
 args = None  # commandline flags
 
@@ -31,9 +36,9 @@ def parse_args():
           help="The persentage of data used for training.")
   parser.add_argument("--validating_percentage", default="0.1", type=float,
           help="The persentage of data used for validation.")
-  parser.add_argument("--remove_background", default="False", type=bool,
+  parser.add_argument("--remove_background", default="True", type=bool,
           help="True to remove background from the images we process.")
-  parser.add_argument("--remove_skin", default="False", type=bool,
+  parser.add_argument("--remove_skin", default="True", type=bool,
           help="True to remove skin from the images we process.")
   parser.add_argument("--max_images_for_train_per_category", default="10000",
           type=int, help="Maximum images used for train per category.")
@@ -60,6 +65,7 @@ def proc_and_copy_image (src, dest) :
   dot_index = dest.rfind('.')
   dest = dest[:dot_index] + '.png'
   cv2.imwrite(dest, img_merge)
+  print src, dest
   return dest
 
 
@@ -147,8 +153,8 @@ def generate_image_list(images, input_dir, output_prefix, label):
     if (not src.endswith('jpg') and not src.endswith('jpeg') and
         not src.endswith('png')):
       dest = dest + '.' + imghdr.what(src)
-    dest = proc_and_copy_image(src, dest)
     dest = md5filename(dest)
+    dest = proc_and_copy_image(src, dest)
     image_list.append("%s %d" % (os.path.basename(dest), label))
   return image_list
 
