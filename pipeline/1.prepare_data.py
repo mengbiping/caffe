@@ -30,7 +30,7 @@ def parse_args():
   parser = argparse.ArgumentParser()
   parser.add_argument("data_dir")
   parser.add_argument("--output_dir", default=".")
-  parser.add_argument("--test_count_in_each_category", default="35", type=int,
+  parser.add_argument("--test_count_in_each_category", default="70", type=int,
           help="The number instances reserved for testing for each category.")
   parser.add_argument("--training_percentage", default="0.9", type=float,
           help="The persentage of data used for training.")
