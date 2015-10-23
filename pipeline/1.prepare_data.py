@@ -36,9 +36,9 @@ def parse_args():
           help="The persentage of data used for training.")
   parser.add_argument("--validating_percentage", default="0.1", type=float,
           help="The persentage of data used for validation.")
-  parser.add_argument("--remove_background", default="True", type=bool,
+  parser.add_argument("--remove_background", default=False, action="store_true",
           help="True to remove background from the images we process.")
-  parser.add_argument("--remove_skin", default="True", type=bool,
+  parser.add_argument("--remove_skin", default=False, action="store_true",
           help="True to remove skin from the images we process.")
   parser.add_argument("--max_images_for_train_per_category", default="10000",
           type=int, help="Maximum images used for train per category.")
@@ -49,7 +49,7 @@ def proc_and_copy_image (src, dest) :
   """Process image from src and write the result to dest."""
   if not args.remove_background and not args.remove_skin :
     shutil.copyfile(src, dest)
-    return
+    return dest
   img = cv2.imread(src)
   fore = 255 * np.ones([img.shape[0],img.shape[1]])
   skinfore = 255 * np.ones([img.shape[0],img.shape[1]])
@@ -65,7 +65,6 @@ def proc_and_copy_image (src, dest) :
   dot_index = dest.rfind('.')
   dest = dest[:dot_index] + '.png'
   cv2.imwrite(dest, img_merge)
-  print src, dest
   return dest
 
 
