@@ -19,7 +19,7 @@ from background_remover import remove_background
 from skin_detector import skin_detect
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--data_dir", default="../../result_amazon_1")
+parser.add_argument("--data_dir", default="../../result_amazon")
 parser.add_argument("--output_dir", default="result_data")
 parser.add_argument("--test_count_in_each_type", default="70", type=int,
         help="The number instances reserved for testing for each category.")
@@ -36,12 +36,15 @@ args = parser.parse_args()
 # Process image from src and write the result to dest.
 def proc_and_copy_image (src, dest) :
   #print src
+  if not args.remove_background and not args.remove_skin :
+    shutil.copyfile(src, dest)
+    return
   img = cv2.imread(src)
-  #fore = 255 * np.ones([img.shape[0],img.shape[1]])
-  #skinfore = 255 * np.ones([img.shape[0],img.shape[1]])
-  if args.remove_background :       
+  fore = 255 * np.ones([img.shape[0],img.shape[1]])
+  skinfore = 255 * np.ones([img.shape[0],img.shape[1]])
+  if args.remove_background :
     fore = remove_background(src)
-  if args.remove_skin :  
+  if args.remove_skin :
     skinfore = skin_detect(img) 
   fore = cv2.bitwise_and(fore, fore, mask = skinfore) # the foreground mask 
   b = img[:,:,0]
@@ -50,8 +53,7 @@ def proc_and_copy_image (src, dest) :
   img_merge = cv2.merge((b,g,r,fore))
   dot_index = dest.rfind('.')
   dest = dest[:dot_index] + '.png'
-  cv2.imwrite(dest,img_merge)
-  #shutil.copyfile(src, dest)
+  cv2.imwrite(dest, img_merge)
 
 pp = pprint.PrettyPrinter(indent=2)
 
