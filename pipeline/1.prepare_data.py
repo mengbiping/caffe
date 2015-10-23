@@ -42,13 +42,25 @@ def parse_args():
 
 def proc_and_copy_image (src, dest) :
   """Process image from src and write the result to dest."""
+  if not args.remove_background and not args.remove_skin :
+    shutil.copyfile(src, dest)
+    return
+  img = cv2.imread(src)
+  fore = 255 * np.ones([img.shape[0],img.shape[1]])
+  skinfore = 255 * np.ones([img.shape[0],img.shape[1]])
   if args.remove_background :
-    # TODO: call background removal.
-    pass
+    fore = remove_background(src)
   if args.remove_skin :
-    # TODO: call skin removal.
-    pass
-  shutil.copyfile(src, dest)
+    skinfore = skin_detect(img) 
+  fore = cv2.bitwise_and(fore, fore, mask = skinfore) # the foreground mask 
+  b = img[:,:,0]
+  g = img[:,:,1]
+  r = img[:,:,2]
+  img_merge = cv2.merge((b,g,r,fore))
+  dot_index = dest.rfind('.')
+  dest = dest[:dot_index] + '.png'
+  cv2.imwrite(dest, img_merge)
+  return dest
 
 
 def load_images_recursively(input_dir):
@@ -135,8 +147,8 @@ def generate_image_list(images, input_dir, output_prefix, label):
     if (not src.endswith('jpg') and not src.endswith('jpeg') and
         not src.endswith('png')):
       dest = dest + '.' + imghdr.what(src)
+    dest = proc_and_copy_image(src, dest)
     dest = md5filename(dest)
-    proc_and_copy_image(src, dest)
     image_list.append("%s %d" % (os.path.basename(dest), label))
   return image_list
 
