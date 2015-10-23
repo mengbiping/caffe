@@ -14,34 +14,44 @@ import os
 import shutil
 import pprint
 import argparse
-import random
-import imghdr
-import math
+import random,cv2,imghdr,math
+from background_remover import remove_background
+from skin_detector import skin_detect
 
 parser = argparse.ArgumentParser()
-parser.add_argument("data_dir")
-parser.add_argument("--output_dir", default=".")
-parser.add_argument("--test_count_in_each_category", default="35", type=int,
+parser.add_argument("--data_dir", default="../../result_amazon_1")
+parser.add_argument("--output_dir", default="result_data")
+parser.add_argument("--test_count_in_each_type", default="70", type=int,
         help="The number instances reserved for testing for each category.")
 parser.add_argument("--training_persentage", default="0.9", type=float,
         help="The persentage of data used for training.")
 parser.add_argument("--validating_persentage", default="0.1", type=float,
         help="The persentage of data used for validation.")
-parser.add_argument("--remove_background", default="False", type=bool,
+parser.add_argument("--remove_background", default="True", type=bool,
         help="True to remove background from the images we process.")
-parser.add_argument("--remove_skin", default="False", type=bool,
+parser.add_argument("--remove_skin", default="True", type=bool,
         help="True to remove skin from the images we process.")
 args = parser.parse_args()
 
 # Process image from src and write the result to dest.
 def proc_and_copy_image (src, dest) :
-  if parser.remove_background :
-    # TODO: call background removal.
-    pass
-  if parser.remove_skin :
-    # TODO: call skin removal.
-    pass
-  shutil.copyfile(src, dest)
+  #print src
+  img = cv2.imread(src)
+  #fore = 255 * np.ones([img.shape[0],img.shape[1]])
+  #skinfore = 255 * np.ones([img.shape[0],img.shape[1]])
+  if args.remove_background :       
+    fore = remove_background(src)
+  if args.remove_skin :  
+    skinfore = skin_detect(img) 
+  fore = cv2.bitwise_and(fore, fore, mask = skinfore) # the foreground mask 
+  b = img[:,:,0]
+  g = img[:,:,1]
+  r = img[:,:,2]
+  img_merge = cv2.merge((b,g,r,fore))
+  dot_index = dest.rfind('.')
+  dest = dest[:dot_index] + '.png'
+  cv2.imwrite(dest,img_merge)
+  #shutil.copyfile(src, dest)
 
 pp = pprint.PrettyPrinter(indent=2)
 
@@ -90,6 +100,7 @@ for cat in categories:
       dest = dest + '.' + imghdr.what(src)
       suffix = '.' + imghdr.what(src)
     proc_and_copy_image(src, dest)
+    suffix = '.png'
     train_list_file.write("%s-%s%s %d\n" % (cat, train_file, suffix, i))
 
   print "Generating validation data..."
@@ -102,6 +113,7 @@ for cat in categories:
       dest = dest + "." + imghdr.what(src)
       suffix = '.' + imghdr.what(src)
     proc_and_copy_image(src, dest)
+    suffix = '.png'
     val_list_file.write("%s-%s%s %d\n" % (cat, val_file, suffix, i))
 
   print "Generating testing data..."
