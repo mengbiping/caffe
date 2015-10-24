@@ -2,7 +2,12 @@
 # Create the lmdb inputs for training/validation images.
 # N.B. set the path to the train + val data dirs
 
-DATA_NAME=clothes_neck
+OUTPUT_DIR=.
+if [ $# -eq 1 ]; then
+    OUTPUT_DIR="$1"
+fi
+
+DATA_NAME=clothes
 CAFFE_ROOT=$HOME/caffe
 
 cd $CAFFE_ROOT
@@ -39,7 +44,21 @@ if [ ! -d "$VAL_DATA_ROOT" ]; then
   exit 1
 fi
 
-echo "Creating train lmdb..."
+TRAIN_LMDB="$OUTPUT_DIR/$DATA_PATH/${DATA_NAME}_train_lmdb"
+if [ -d "$TRAIN_LMDB" ]; then
+    echo "Remove previous train lmdb $TRAIN_LMDB"
+    rm -rf "$TRAIN_LMDB"
+fi
+mkdir -p `dirname $TRAIN_LMDB`
+
+VAL_LMDB="$OUTPUT_DIR/$DATA_PATH/${DATA_NAME}_val_lmdb"
+if [ -d "$VAL_LMDB" ]; then
+    echo "Remove previous val lmdb $VAL_LMDB"
+    rm -rf "$VAL_LMDB"
+fi
+mkdir -p `dirname $VAL_LMDB`
+
+echo "Creating train lmdb in $TRAIN_LMDB ..."
 
 GLOG_logtostderr=1 $TOOLS/convert_imageset \
     --resize_height=$RESIZE_HEIGHT \
@@ -47,9 +66,9 @@ GLOG_logtostderr=1 $TOOLS/convert_imageset \
     --shuffle \
     $TRAIN_DATA_ROOT \
     $DATA_PATH/train.txt \
-    $DATA_PATH/${DATA_NAME}_train_lmdb
+    $TRAIN_LMDB
 
-echo "Creating val lmdb..."
+echo "Creating val lmdb in $VAL_LMDB ..."
 
 GLOG_logtostderr=1 $TOOLS/convert_imageset \
     --resize_height=$RESIZE_HEIGHT \
@@ -57,6 +76,6 @@ GLOG_logtostderr=1 $TOOLS/convert_imageset \
     --shuffle \
     $VAL_DATA_ROOT \
     $DATA_PATH/val.txt \
-    $DATA_PATH/${DATA_NAME}_val_lmdb
+    $VAL_LMDB
 
 echo "Done."
