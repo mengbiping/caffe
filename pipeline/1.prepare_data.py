@@ -22,11 +22,12 @@ from background_remover import remove_background
 from skin_detector import skin_detect
 
 args = None  # commandline flags
+images_for_category = {}  # parsed from commandline max_images_for_category
 
 
 def parse_args():
   """Parse commandline flags"""
-  global args
+  global args, images_for_category
   parser = argparse.ArgumentParser()
   parser.add_argument("data_dir")
   parser.add_argument("--output_dir", default=".")
@@ -42,7 +43,17 @@ def parse_args():
           help="True to remove skin from the images we process.")
   parser.add_argument("--max_images_for_train_per_category", default="10000",
           type=int, help="Maximum images used for train per category.")
+  parser.add_argument("--max_images_for_category", type=str,
+          help=("Specify number of images for category, the format " +
+            "is category1:count1,category2:count2"))
+
   args = parser.parse_args()
+  if args.max_images_for_category:
+    items = args.max_images_for_category.split(',')
+    for item in items:
+      cat_count = item.split(':')
+      images_for_category[cat_count[0]] = int(cat_count[1])
+    print('Set image count for category: {}'.format(images_for_category))
 
 
 def proc_and_copy_image (src, dest) :
@@ -86,6 +97,39 @@ def load_images_recursively(input_dir):
   return files
 
 
+def load_images_for_category(cat, training_percentage):
+  """Load images filenames for category."""
+  print 'Loading category', cat, '...'
+  category = {}
+  category['all'] = load_images_recursively(
+      os.path.join(args.data_dir, cat))
+  print 'Loaded', len(category['all']), 'files for', cat
+  category['test'] = random.sample(category['all'],
+                                          args.test_count_in_each_category)
+  rest = [item for item in category['all'] if item not in
+          category['test']]
+  # print rest
+  training_count = int(math.floor(len(rest) * training_percentage))
+  max_trains = images_for_category.get(cat,
+      args.max_images_for_train_per_category)
+  if max_trains > 0 and training_count > max_trains:
+    training_count = max_trains
+  # print training_count
+  category['train'] = random.sample(rest, training_count)
+  val_count = int(training_count * args.validating_percentage /
+      args.training_percentage)
+  val_set = [item for item in rest if item not in category['train']]
+  if len(val_set) > val_count:
+    category['val'] = random.sample(val_set, val_count)
+  else:
+    category['val'] = val_set
+
+  assert len(category['test']) == args.test_count_in_each_category
+  assert len(category['train']) > 0
+  assert len(category['val']) > 0
+  return category
+
+
 def load_images():
   """Load images filenames from input directory.
   
@@ -98,33 +142,9 @@ def load_images():
 
   categories = {}
   for cat in os.listdir(args.data_dir) :
-    print 'Loading category', cat, '...'
-    categories[cat] = {}
-    categories[cat]['all'] = load_images_recursively(
-        os.path.join(args.data_dir, cat))
-    print 'Loaded', len(categories[cat]['all']), 'files for', cat
-    categories[cat]['test'] = random.sample(categories[cat]['all'],
-                                            args.test_count_in_each_category)
-    rest = [item for item in categories[cat]['all'] if item not in
-            categories[cat]['test']]
-    # print rest
-    training_count = int(math.floor(len(rest) * training_percentage))
-    max_trains = args.max_images_for_train_per_category
-    if max_trains > 0 and training_count > max_trains:
-      training_count = max_trains
-    # print training_count
-    categories[cat]['train'] = random.sample(rest, training_count)
-    val_count = int(training_count * args.validating_percentage /
-        args.training_percentage)
-    val_set = [item for item in rest if item not in categories[cat]['train']]
-    if len(val_set) > val_count:
-      categories[cat]['val'] = random.sample(val_set, val_count)
-    else:
-      categories[cat]['val'] = val_set
-
-    assert len(categories[cat]['test']) == args.test_count_in_each_category
-    assert len(categories[cat]['train']) > 0
-    assert len(categories[cat]['val']) > 0
+    if not os.path.isdir(os.path.join(args.data_dir, cat)):
+      continue
+    categories[cat] = load_images_for_category(cat, training_percentage)
   return categories
 
 
@@ -165,7 +185,7 @@ def prepare_output_directories():
     subdirectory = os.path.join(args.output_dir, subdirectory)
     if os.path.isdir(subdirectory):
       shutil.rmtree(subdirectory)
-    os.mkdir(subdirectory)
+    os.makedirs(subdirectory)
 
 
 def md5filename(dest):
