@@ -11,27 +11,20 @@ sys.path.insert(0, os.path.join(os.getenv('HOME'), 'caffe', 'python'))
 import caffe
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--model_iter_in_k", default="40")
-parser.add_argument("--data_name", default="clothes")
-parser.add_argument("--net_name", default="googlenet")
-parser.add_argument("--snapshot", default="quick_snapshots")
+parser.add_argument("--model_file", default="")
+parser.add_argument("--deploy_file", default="")
+parser.add_argument("--mean_file", default="")
+parser.add_argument("--image_dir", default="")
 parser.add_argument("--mode", default="gpu")
 parser.add_argument("--min_confidence", default="0.7", type=float)
-parser.add_argument("--model_path_prefix", default="/mnt/data",
-        help="The path prefix to save the model files.")
+parser.add_argument("--output_predication", default="")
+parser.add_argument("--label_file", default ="")
 args = parser.parse_args()
 
-# Set the right path to your model definition file, pretrained model weights,
-# and the image you would like to classify.
-model_name = "%s_%s" % (args.data_name, args.net_name)
-_model_filename = '{}_iter_{}.caffemodel'.format(model_name, args.model_iter_in_k)
-model_file = os.path.join(args.model_path_prefix, 'models', model_name,
-        args.snapshot, _model_filename)
-deploy_file = os.path.join('models', model_name, 'deploy.prototxt')
-
-_mean_filename = '{}_mean.npy'.format(args.data_name)
-mean_file = os.path.join('data', args.data_name, _mean_filename)
-image_dir = os.path.join('data', args.data_name, 'test')
+model_file = args.model_file
+deploy_file = args.deploy_file
+mean_file = args.mean_file
+image_dir = args.image_dir
 
 pp = pprint.PrettyPrinter(indent=2)
 print "Using %s mode" % args.mode
@@ -66,12 +59,22 @@ total_high = 0
 wrong_high = 0
 stats = {}
 ground_truth_extractor = re.compile("^([0-9]+)-")
+output_predications = []
+labels = []
+if args.label_file:
+  labels = open(args.label_file).readlines()
+  labels = [label.strip() for label in labels]
+
 for image in sorted(os.listdir(image_dir)) :
   total += 1
   (c, prob) = classify(net, os.path.join(image_dir, image))
+  label = str(c)
+  if c < len(labels):
+      label = labels[c]
+  print image, c, prob, label
+  output_predications.append("{} {} {}".format(image, label, prob))
   matched = ground_truth_extractor.match(image)
   ground_truth = int(matched.group(1))
-  print ground_truth, image
   if c != ground_truth :
     wrong += 1
     print "Wrong classification %d: %s with prob: %f"%(c, image, prob)
@@ -98,3 +101,6 @@ print "Total images(high prob): %d"% total_high
 print "Precision(high prob): %f" % (1 - wrong_high * 1.0 / total_high)
 print "Drop rate(high prob): %f" % (1 - total_high * 1.0 / total)
 pp.pprint(stats)
+if args.output_predication:
+  with open(args.output_predication, "w") as of:
+    of.write('\n'.join(output_predications))
