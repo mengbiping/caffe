@@ -18,6 +18,10 @@ echo "MAX_SNAPSHOT: $MAX_SNAPSHOT"
 
 echo "Saving log to $MODEL_PATH/${SOLVER}.log"
 
+if [ ! -d $SNAPSHOTS ]; then
+    mkdir -p $SNAPSHOTS
+fi
+
 if [ ! "$MAX_SNAPSHOT" == "" ] && [ -f $MAX_SNAPSHOT ]; then
   echo "Resuming from a snapshot: $MAX_SNAPSHOT"
   nohup build/tools/caffe train \

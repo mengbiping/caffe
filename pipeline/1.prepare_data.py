@@ -43,7 +43,7 @@ def parse_args():
           help="True to remove skin from the images we process.")
   parser.add_argument("--max_images_for_train_per_category", default="10000",
           type=int, help="Maximum images used for train per category.")
-  parser.add_argument("--max_images_for_category", type=str,
+  parser.add_argument("--max_images_for_category", default="", type=str,
           help=("Specify number of images for category, the format " +
             "is category1:count1,category2:count2"))
 
