@@ -1,0 +1,87 @@
+T: 770 G: 638 P: 0.829
+High T: 562 G: 522 P:0.929
+Dropped: 0.270
+----------------- Category Shoes----------------------
+T: 70 G: 67 P: 0.957
+High T: 65 G: 64 P:0.985
+Dropped: 0.071
+  Maternity     0    1
+  Outfits       1    1
+----------------- Category Buttom----------------------
+T: 70 G: 62 P: 0.886
+High T: 55 G: 54 P:0.982
+Dropped: 0.214
+  Dress         0    1
+  Top           0    1
+  Maternity     1    4
+  Intimates     0    1
+----------------- Category Top----------------------
+T: 70 G: 62 P: 0.886
+High T: 50 G: 48 P:0.960
+Dropped: 0.286
+  Buttom        1    0
+  Dress         1    3
+  Maternity     0    2
+  Watches       0    1
+----------------- Category Swimwear----------------------
+T: 70 G: 55 P: 0.786
+High T: 42 G: 37 P:0.881
+Dropped: 0.400
+  Maternity     0    5
+  Buttom        2    0
+  Dress         1    0
+  Top           0    1
+  Intimates     2    4
+----------------- Category Watches----------------------
+T: 70 G: 69 P: 0.986
+High T: 68 G: 68 P:1.000
+Dropped: 0.029
+  Shoes         0    1
+----------------- Category Outfits----------------------
+T: 70 G: 39 P: 0.557
+High T: 29 G: 21 P:0.724
+Dropped: 0.586
+  Dress         1    6
+  Top           3    4
+  Maternity     2   10
+  Shoes         0    1
+  Buttom        2    2
+----------------- Category Pajamas&Robes----------------------
+T: 70 G: 42 P: 0.600
+High T: 40 G: 28 P:0.700
+Dropped: 0.429
+  Dress         2    1
+  Top           3    7
+  Maternity     7    7
+  Shoes         0    1
+----------------- Category Maternity----------------------
+T: 70 G: 64 P: 0.914
+High T: 56 G: 54 P:0.964
+Dropped: 0.200
+  Top           2    1
+  Dress         0    1
+  Shoes         0    1
+  Outfits       0    1
+----------------- Category Intimates----------------------
+T: 70 G: 51 P: 0.729
+High T: 33 G: 28 P:0.848
+Dropped: 0.529
+  Buttom        0    3
+  Top           0    3
+  Maternity     2    1
+  Swimwear      2    6
+  Shoes         1    1
+----------------- Category Dress----------------------
+T: 70 G: 59 P: 0.843
+High T: 57 G: 53 P:0.930
+Dropped: 0.186
+  Top           3    3
+  Maternity     0    3
+  Pajamas&Robes    0    1
+  Intimates     1    0
+----------------- Category Glasses----------------------
+T: 70 G: 68 P: 0.971
+High T: 67 G: 67 P:1.000
+Dropped: 0.043
+  Buttom        0    1
+  Shoes         0    1
