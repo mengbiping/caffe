@@ -17,6 +17,10 @@ import numpy as np
 import os
 import random
 import shutil
+import sys
+
+_script_path = os.path.dirname(os.path.abspath( __file__ ))
+sys.path.insert(0, os.path.join(_script_path, 'lib'))
 
 from background_remover import remove_background
 from skin_detector import skin_detect

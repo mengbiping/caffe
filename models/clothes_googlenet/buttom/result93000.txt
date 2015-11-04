@@ -1,0 +1,29 @@
+T: 280 G: 244 P: 0.871
+High T: 259 G: 234 P:0.903
+Dropped: 0.075
+----------------- Category Capris----------------------
+T: 70 G: 62 P: 0.886
+High T: 67 G: 61 P:0.910
+Dropped: 0.043
+  Pants         2    0
+  Skirt         0    1
+  Shorts        4    1
+----------------- Category Pants----------------------
+T: 70 G: 62 P: 0.886
+High T: 67 G: 61 P:0.910
+Dropped: 0.043
+  Capris        3    2
+  Skirt         3    0
+----------------- Category Skirt----------------------
+T: 70 G: 65 P: 0.929
+High T: 64 G: 61 P:0.953
+Dropped: 0.086
+  Pants         0    1
+  Shorts        3    1
+----------------- Category Shorts----------------------
+T: 70 G: 55 P: 0.786
+High T: 61 G: 51 P:0.836
+Dropped: 0.129
+  Capris        6    2
+  Skirt         3    3
+  Pants         1    0
