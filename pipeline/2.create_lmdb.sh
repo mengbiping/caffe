@@ -3,11 +3,16 @@
 # N.B. set the path to the train + val data dirs
 
 OUTPUT_DIR=.
-if [ $# -eq 1 ]; then
+if [ $# -ge 1 ]; then
     OUTPUT_DIR="$1"
 fi
+echo "OUTPUT_DIR: $OUTPUT_DIR"
 
 DATA_NAME=clothes
+if [ $# -ge 2 ]; then
+    DATA_NAME="$2"
+fi
+echo "DATA_NAME: $DATA_NAME"
 CAFFE_ROOT=$HOME/caffe
 
 cd $CAFFE_ROOT
@@ -49,6 +54,7 @@ if [ -d "$TRAIN_LMDB" ]; then
     echo "Remove previous train lmdb $TRAIN_LMDB"
     rm -rf "$TRAIN_LMDB"
 fi
+echo "Create directory for train lmdb: $TRAIN_LMDB"
 mkdir -p `dirname $TRAIN_LMDB`
 
 VAL_LMDB="$OUTPUT_DIR/$DATA_PATH/${DATA_NAME}_val_lmdb"
@@ -56,6 +62,7 @@ if [ -d "$VAL_LMDB" ]; then
     echo "Remove previous val lmdb $VAL_LMDB"
     rm -rf "$VAL_LMDB"
 fi
+echo "Create directory for val lmdb: $VAL_LMDB"
 mkdir -p `dirname $VAL_LMDB`
 
 echo "Creating train lmdb in $TRAIN_LMDB ..."

@@ -1,0 +1,29 @@
+T: 280 G: 229 P: 0.818
+High T: 221 G: 200 P:0.905
+Dropped: 0.211
+----------------- Category Vest----------------------
+T: 70 G: 59 P: 0.843
+High T: 53 G: 51 P:0.962
+Dropped: 0.243
+  Jacket&Coat    2    8
+  Shirt         0    1
+----------------- Category Sweater----------------------
+T: 70 G: 52 P: 0.743
+High T: 53 G: 46 P:0.868
+Dropped: 0.243
+  Vest          0    2
+  Jacket&Coat    4    6
+  Shirt         3    3
+----------------- Category Jacket&Coat----------------------
+T: 70 G: 65 P: 0.929
+High T: 60 G: 58 P:0.967
+Dropped: 0.143
+  Sweater       1    2
+  Shirt         1    1
+----------------- Category Shirt----------------------
+T: 70 G: 53 P: 0.757
+High T: 55 G: 45 P:0.818
+Dropped: 0.214
+  Sweater       7    2
+  Vest          1    2
+  Jacket&Coat    2    3

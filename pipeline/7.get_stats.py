@@ -1,5 +1,3 @@
-#!/usr/bin/python
-
 import os
 import shutil
 import sys
@@ -15,16 +13,12 @@ def split(line):
     is_digital_label = False
 
   if is_digital_label:
-    dash_idx = filename.find('-')
-    assert dash_idx > 0, "No dash after dot: {}".format(line)
-    category = filename[:dash_idx]
+    category = filename.split('-')[0]
   else:
-    dot_idx = filename.find('.')
-    assert dot_idx > 0, "No dot: {}".format(line)
-    dot_idx += 1
-    dash_idx = filename.find('-', dot_idx)
-    assert dash_idx > 0, "No dash after dot: {}".format(line)
-    category = filename[dot_idx:dash_idx]
+    category = filename.split('-')[1]
+    dot_idx = category.find('.')
+    if dot_idx > 0:
+      category = category[dot_idx+1:]
   return (category, items[1], float(items[2]), items[0])
 
 

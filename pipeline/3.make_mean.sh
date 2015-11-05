@@ -2,11 +2,15 @@
 # Compute the mean image from the training lmdb.
 
 OUTPUT_DIR=.
-if [ $# -eq 1 ]; then
+if [ $# -ge 1 ]; then
     OUTPUT_DIR="$1"
 fi
 
 DATA_NAME=clothes
+if [ $# -ge 2 ]; then
+    DATA_NAME="$2"
+fi
+
 CAFFE_ROOT=$HOME/caffe
 
 cd $CAFFE_ROOT
