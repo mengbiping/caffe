@@ -1,0 +1,27 @@
+T: 280 G: 266 P: 0.950
+High T: 259 G: 250 P:0.965
+Dropped: 0.075
+----------------- Category Bras----------------------
+T: 70 G: 66 P: 0.943
+High T: 60 G: 57 P:0.950
+Dropped: 0.143
+  Bra&Panty     2    0
+  Camisoles     1    1
+----------------- Category Bra&Panty----------------------
+T: 70 G: 66 P: 0.943
+High T: 65 G: 63 P:0.969
+Dropped: 0.071
+  Bras          1    1
+  Camisoles     1    1
+----------------- Category Panties----------------------
+T: 70 G: 67 P: 0.957
+High T: 67 G: 65 P:0.970
+Dropped: 0.043
+  Bras          2    0
+  Bra&Panty     0    1
+----------------- Category Camisoles----------------------
+T: 70 G: 67 P: 0.957
+High T: 67 G: 65 P:0.970
+Dropped: 0.043
+  Bras          1    1
+  Bra&Panty     1    0
