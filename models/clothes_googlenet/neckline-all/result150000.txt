@@ -1,0 +1,78 @@
+T: 630 G: 534 P: 0.848
+High T: 551 G: 497 P:0.902
+Dropped: 0.125
+----------------- Category V&Open----------------------
+T: 70 G: 57 P: 0.814
+High T: 57 G: 51 P:0.895
+Dropped: 0.186
+  High          0    2
+  Round         3    3
+  Halter        2    1
+  Camisole      1    1
+----------------- Category Square----------------------
+T: 70 G: 48 P: 0.686
+High T: 51 G: 37 P:0.725
+Dropped: 0.271
+  V&Open        1    0
+  Strapless     0    2
+  Camisole      4    3
+  Halter        1    0
+  High          1    0
+  OffShoulder    2    0
+  Round         5    3
+----------------- Category Strapless----------------------
+T: 70 G: 67 P: 0.957
+High T: 70 G: 67 P:0.957
+Dropped: 0.000
+  Halter        3    0
+----------------- Category Camisole----------------------
+T: 70 G: 56 P: 0.800
+High T: 55 G: 49 P:0.891
+Dropped: 0.214
+  V&Open        0    1
+  Square        0    1
+  Strapless     1    0
+  Halter        4    2
+  High          1    0
+  OffShoulder    0    2
+  Portrait      0    1
+  Round         0    1
+----------------- Category Halter----------------------
+T: 70 G: 60 P: 0.857
+High T: 63 G: 57 P:0.905
+Dropped: 0.100
+  High          1    0
+  V&Open        0    2
+  Strapless     3    2
+  Camisole      2    0
+----------------- Category High----------------------
+T: 70 G: 64 P: 0.914
+High T: 67 G: 63 P:0.940
+Dropped: 0.043
+  Portrait      2    1
+  V&Open        0    1
+  OffShoulder    1    0
+  Round         1    0
+----------------- Category OffShoulder----------------------
+T: 70 G: 61 P: 0.871
+High T: 63 G: 59 P:0.937
+Dropped: 0.100
+  High          1    4
+  V&Open        1    0
+  Round         1    1
+  Camisole      1    0
+----------------- Category Portrait----------------------
+T: 70 G: 56 P: 0.800
+High T: 58 G: 51 P:0.879
+Dropped: 0.171
+  High          5    4
+  V&Open        0    1
+  OffShoulder    0    1
+  Round         2    1
+----------------- Category Round----------------------
+T: 70 G: 65 P: 0.929
+High T: 67 G: 63 P:0.940
+Dropped: 0.043
+  High          3    0
+  V&Open        1    0
+  Strapless     0    1
