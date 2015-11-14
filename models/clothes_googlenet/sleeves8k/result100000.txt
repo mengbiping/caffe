@@ -1,0 +1,37 @@
+T: 350 G: 187 P: 0.534
+High T: 247 G: 148 P:0.599
+Dropped: 0.294
+----------------- Category Sleeveless----------------------
+T: 70 G: 28 P: 0.400
+High T: 43 G: 19 P:0.442
+Dropped: 0.386
+  Cap           3    6
+  Long         21   11
+  Short         0    1
+----------------- Category 3v4----------------------
+T: 70 G: 23 P: 0.329
+High T: 52 G: 19 P:0.365
+Dropped: 0.257
+  Short         1    0
+  Long         32   14
+----------------- Category Cap----------------------
+T: 70 G: 33 P: 0.471
+High T: 36 G: 20 P:0.556
+Dropped: 0.486
+  Sleeveless    5    8
+  Short         1    4
+  Long         10    9
+----------------- Category Long----------------------
+T: 70 G: 66 P: 0.943
+High T: 62 G: 62 P:1.000
+Dropped: 0.114
+  Sleeveless    0    3
+  3v4           0    1
+----------------- Category Short----------------------
+T: 70 G: 37 P: 0.529
+High T: 54 G: 28 P:0.519
+Dropped: 0.229
+  Sleeveless    1    0
+  3v4           1    1
+  Cap           3    3
+  Long         21    3
