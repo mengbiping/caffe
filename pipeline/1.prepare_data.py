@@ -45,7 +45,7 @@ def parse_args():
           help="True to remove background from the images we process.")
   parser.add_argument("--remove_skin", default=False, action="store_true",
           help="True to remove skin from the images we process.")
-  parser.add_argument("--max_images_for_train_per_category", default="10000",
+  parser.add_argument("--max_images_for_train_per_category", default="13000",
           type=int, help="Maximum images used for train per category.")
   parser.add_argument("--max_images_for_category", default="", type=str,
           help=("Specify number of images for category, the format " +
@@ -60,11 +60,7 @@ def parse_args():
     print('Set image count for category: {}'.format(images_for_category))
 
 
-def proc_and_copy_image (src, dest) :
-  """Process image from src and write the result to dest."""
-  if not args.remove_background and not args.remove_skin :
-    shutil.copyfile(src, dest)
-    return dest
+def remove_background_skin(src, dest):
   img = cv2.imread(src)
   fore = 255 * np.ones([img.shape[0],img.shape[1]])
   skinfore = 255 * np.ones([img.shape[0],img.shape[1]])
@@ -83,6 +79,14 @@ def proc_and_copy_image (src, dest) :
   return dest
 
 
+def proc_and_copy_image(src, dest) :
+  """Process image from src and write the result to dest."""
+  if not args.remove_background and not args.remove_skin :
+    shutil.copyfile(src, dest)
+    return dest
+  return remove_background_skin(src, dest)
+
+
 def load_images_recursively(input_dir):
   """Load images from input_dir and sub directories.
 
@@ -90,14 +94,16 @@ def load_images_recursively(input_dir):
     files list relative to input dir
   """
   files = []
+  input_dir_len = len(input_dir) + 1
   for dirname, subdir, filenames in os.walk(input_dir):
     print len(filenames), 'files in directory', dirname
-    striped_dirname = dirname.lstrip(input_dir + '/')
+    striped_dirname = dirname[input_dir_len:]
     for filename in filenames:
       # Skip non image file.
       if not imghdr.what(os.path.join(dirname, filename)):
         continue
-      files.append(os.path.join(striped_dirname, filename))
+      filename = os.path.join(striped_dirname, filename)
+      files.append(filename)
   return files
 
 
@@ -177,6 +183,7 @@ def generate_image_list(images, input_dir, output_prefix, label):
         not src.endswith('png')):
       dest = dest + '.' + imghdr.what(src)
     dest = md5filename(dest)
+    # print filename, src, dest
     dest = proc_and_copy_image(src, dest)
     image_list.append("%s %d" % (os.path.basename(dest), label))
   return image_list
